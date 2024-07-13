@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Humidity Table and Calculator</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; padding: 20px; max-width: 800px; margin: 0 auto; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: right; }
+        th { background-color: #f2f2f2; }
+        h1, h2 { color: #333; }
+        input, button { margin: 5px 0; padding: 5px; }
+        #result { font-weight: bold; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <h1>Humidity Table and Calculator</h1>
+
+    <h2>Absolute Humidity Table (g/m³)</h2>
+    <table id="humidityTable"></table>
+
+    <h2>Absolute Humidity Calculator</h2>
+    <div>
+        <label for="temperature">Temperature (°C):</label>
+        <input type="number" id="temperature" step="0.1" required>
+    </div>
+    <div>
+        <label for="relativeHumidity">Relative Humidity (%):</label>
+        <input type="number" id="relativeHumidity" min="0" max="100" step="0.1" required>
+    </div>
+    <button onclick="calculateHumidity()">Calculate</button>
+    <div id="result"></div>
+
+    <script>
+        function absoluteHumidity(T, RH) {
+            const SVP = 6.112 * Math.exp((17.67 * T) / (T + 243.5));
+            const AVP = SVP * RH;
+            const AH = (AVP * 2.1674) / (273.15 + T);
+            return AH;
+        }
+
+        function generateTable() {
+            const temperatures = [10, 13, 16, 19, 22, 25, 28, 30];
+            const humidities = [30, 40, 50, 60, 70, 80, 90, 100];
+            let table = '<tr><th>RH (%)</th>';
+            
+            temperatures.forEach(T => {
+                table += `<th>${T}°C</th>`;
+            });
+            table += '</tr>';
+
+            humidities.forEach(RH => {
+                table += `<tr><td>${RH}</td>`;
+                temperatures.forEach(T => {
+                    const AH = absoluteHumidity(T, RH).toFixed(1);
+                    table += `<td>${AH}</td>`;
+                });
+                table += '</tr>';
+            });
+
+            document.getElementById('humidityTable').innerHTML = table;
+        }
+
+        function calculateHumidity() {
+            const T = parseFloat(document.getElementById('temperature').value);
+            const RH = parseFloat(document.getElementById('relativeHumidity').value);
+            
+            if (isNaN(T) || isNaN(RH)) {
+                document.getElementById('result').textContent = 'Please enter valid numbers.';
+                return;
+            }
+
+            const AH = absoluteHumidity(T, RH).toFixed(1);
+            document.getElementById('result').textContent = `Absolute Humidity: ${AH} g/m³`;
+        }
+
+        generateTable();
+    </script>
+</body>
+</html>
